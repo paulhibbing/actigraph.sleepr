@@ -169,7 +169,7 @@ rleid <- function(x) {
 }
 
 # Calculate log(counts) while avoiding zero-count values
-log_adjust <- function(x, adjustment = c("actilife", "pmax")) {
+log_adjust <- function(x, adjustment = c("actilife", "pmax", "none")) {
 
   adjustment <- match.arg(adjustment)
 
@@ -177,6 +177,7 @@ log_adjust <- function(x, adjustment = c("actilife", "pmax")) {
     adjustment,
     "actilife" = x + 1,
     "pmax" = pmax(x, 1),
+    "none" = x,
     NULL
   ) %>%
   log(.)

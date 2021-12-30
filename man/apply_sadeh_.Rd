@@ -8,7 +8,7 @@ apply_sadeh_(
   data,
   countname = "axis1",
   sleep_threshold = -4,
-  adjustment = c("actilife", "pmax")
+  adjustment = c("actilife", "pmax", "none")
 )
 }
 \arguments{
@@ -20,8 +20,9 @@ apply_sadeh_(
 probability will be classified as sleep}
 
 \item{adjustment}{character. The method to use for avoiding \code{log(0)},
-one of \code{"actilife"} (adds 1 count to all values) or \code{"pmax"} (adds
-1 to all zero-count values and leaves others unchanged)}
+one of \code{"actilife"} (adds 1 count to all values), \code{"pmax"} (adds
+1 to all zero-count values and leaves others unchanged), or \code{"none"} (
+does not add anything)}
 }
 \description{
 Internal function for calculating Sadeh algorithm sleep variables

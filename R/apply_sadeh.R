@@ -85,13 +85,14 @@ apply_sadeh <- function(agdb, TSname = "timestamp", countname = "axis1", ...) {
 #' @param sleep_threshold numeric. Threshold above which the sleep index/sleep
 #'   probability will be classified as sleep
 #' @param adjustment character. The method to use for avoiding \code{log(0)},
-#'   one of \code{"actilife"} (adds 1 count to all values) or \code{"pmax"} (adds
-#'   1 to all zero-count values and leaves others unchanged)
+#'   one of \code{"actilife"} (adds 1 count to all values), \code{"pmax"} (adds
+#'   1 to all zero-count values and leaves others unchanged), or \code{"none"} (
+#'   does not add anything)
 #'
 #' @keywords internal
 apply_sadeh_ <- function(
   data, countname = "axis1", sleep_threshold = -4,
-  adjustment = c("actilife", "pmax")
+  adjustment = c("actilife", "pmax", "none")
 ) {
 
   adjustment <- match.arg(adjustment)
