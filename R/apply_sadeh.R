@@ -6,6 +6,9 @@
 #' @param agdb A \code{tibble} (\code{tbl}) of activity data
 #' (at least) an \code{epochlength} attribute. The epoch length must
 #' be 60 seconds.
+#' @inheritParams get_epoch_length
+#' @param countname character. Name of the vertical axis column
+#' @param ... arguments passed to \code{\link[internal applicator]{apply_sadeh_}}
 #' @return A \code{tibble} (\code{tbl}) of activity data. A new column
 #'  \code{sleep} indicates whether each 60s epoch is scored as asleep
 #'  (S) or awake (W).
@@ -58,18 +61,42 @@
 #'   apply_sadeh()
 #' @export
 
-apply_sadeh <- function(agdb) {
-  check_args_sleep_scores(agdb, "Sadeh")
+apply_sadeh <- function(agdb, TSname = "timestamp", countname = "axis1", ...) {
+
+  if (inherits(agdb, "data.frame", TRUE)==1) {
+    agdb %<>% AG_convert(TSname, countname)
+  }
+
+  check_args_sleep_scores(agdb, "Sadeh", TSname, countname)
 
   attr(agdb, "sleep_algorithm") <- "Sadeh"
 
   agdb %>% group_modify(
-    ~ apply_sadeh_(.)
+    function(x, y, ...) apply_sadeh_(x, ...),
+    countname = countname,
+    ...
   )
 }
 
-apply_sadeh_ <- function(data) {
+#' Internal function for calculating Sadeh algorithm sleep variables
+#'
+#' @inheritParams apply_sadeh
+#' @param data tibble of input data
+#' @param sleep_threshold numeric. Threshold above which the sleep index/sleep
+#'   probability will be classified as sleep
+#' @param adjustment character. The method to use for avoiding \code{log(0)},
+#'   one of \code{"actilife"} (adds 1 count to all values) or \code{"pmax"} (adds
+#'   1 to all zero-count values and leaves others unchanged)
+#'
+#' @keywords internal
+apply_sadeh_ <- function(
+  data, countname = "axis1", sleep_threshold = -4,
+  adjustment = c("actilife", "pmax")
+) {
+
+  adjustment <- match.arg(adjustment)
   half_window <- 5
+
   # From the Sadeh paper:
   # Mean-W-5-min is the average number of activity counts during the scored
   # epoch and the window of five epochs preceding and following it.
@@ -104,13 +131,14 @@ apply_sadeh_ <- function(data) {
 
   data %>%
     mutate(
-      count = pmin(.data$axis1, 300),
+      count = pmin(.data[[countname]], 300),
       sleep = (
         7.601
         - 0.065 * roll_avg(.data$count)
           - 1.08 * roll_nats(.data$count)
           - 0.056 * roll_std(.data$count)
-          - 0.703 * log(.data$count + 1)),
-      sleep = if_else(.data$sleep > -4, "S", "W")
+          - 0.703 * log_adjust(.data$count, adjustment)
+      ),
+      sleep = if_else(.data$sleep > sleep_threshold, "S", "W")
     )
 }

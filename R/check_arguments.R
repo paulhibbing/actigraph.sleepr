@@ -1,17 +1,17 @@
-check_epochlen_is_60 <- function(agdb, algorithm) {
-  assert_that(get_epoch_length(agdb) == 60,
+check_epochlen_is_60 <- function(agdb, algorithm, TSname = "timestamp") {
+  assert_that(get_epoch_length(agdb, TSname) == 60,
     msg = paste0(
       algorithm, " assumes 60sec epochs. ",
       "Aggregate epochs with `collapse_epochs`."
     )
   )
 }
-check_no_missing_timestamps <- function(agdb) {
-  assert_that(has_missing_epochs(agdb) == FALSE,
+check_no_missing_timestamps <- function(agdb, TSname = "timestamp") {
+  assert_that(has_missing_epochs(agdb, TSname) == FALSE,
     msg = paste0(
       "Missing timestamps. ",
       "Epochs should be evenly spaced from ",
-      "first(timestamp) to last(timestamp)."
+      "first(",TSname,") to last(",TSname,")."
     )
   )
 }
@@ -35,10 +35,12 @@ check_no_missing_state <- function(agdb) {
     msg = "Missing asleep/awake values."
   )
 }
-check_args_sleep_scores <- function(agdb, algorithm) {
-  check_epochlen_is_60(agdb, algorithm)
-  check_no_missing_timestamps(agdb)
-  check_no_missing_counts(agdb, "axis1")
+check_args_sleep_scores <- function(
+  agdb, algorithm, TSname = "timestamp", countname = "axis1"
+) {
+  check_epochlen_is_60(agdb, algorithm, TSname)
+  check_no_missing_timestamps(agdb, TSname)
+  check_no_missing_counts(agdb, countname)
 }
 check_args_sleep_periods <- function(agdb, algorithm) {
   check_epochlen_is_60(agdb, algorithm)
@@ -60,8 +62,10 @@ check_args_filter <- function(agdb, var) {
   check_no_missing_timestamps(agdb)
   check_no_missing_counts(agdb, var)
 }
-check_args_collapse_method <- function(agdb, epoch_len_out) {
-  check_no_missing_timestamps(agdb)
+check_args_collapse_method <- function(
+  agdb, epoch_len_out, TSname = "timestamp"
+) {
+  check_no_missing_timestamps(agdb, TSname)
   check_no_missing_counts(agdb, "axis1")
   assert_that(epoch_len_out == 60,
     msg = "Use `collapse_epochs` to aggregate to 60s epochs."

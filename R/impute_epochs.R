@@ -49,25 +49,27 @@ impute_epochs_ <- function(data, selected) {
 #' performed for each group separately.
 #' @param agdb A \code{tibble} (\code{tbl}) of activity data (at least)
 #' an \code{epochlength} attribute.
+#' @inheritParams get_epoch_length
 #' @return True or false.
 #' @export
-has_missing_epochs <- function(agdb) {
-  if (anyNA(agdb$timestamp)) {
+has_missing_epochs <- function(agdb, TSname = "timestamp") {
+  if (anyNA(agdb[[TSname]])) {
     return(TRUE)
   }
 
   agdb <- agdb %>%
     group_modify(
-      ~ has_missing_epochs_(.)
+      function(x,y,TSname) has_missing_epochs_(x, TSname),
+      TSname = TSname
     )
   any(agdb$missing)
 }
 
-has_missing_epochs_ <- function(data) {
-  epoch_len <- get_epoch_length(data)
+has_missing_epochs_ <- function(data, TSname = "timestamp") {
+  epoch_len <- get_epoch_length(data, TSname)
 
-  epochs <- seq(first(data$timestamp), last(data$timestamp),
+  epochs <- seq(first(data[[TSname]]), last(data[[TSname]]),
     by = epoch_len
   )
-  tibble::tibble(missing = !identical(epochs, data$timestamp))
+  tibble::tibble(missing = !identical(epochs, data[[TSname]]))
 }

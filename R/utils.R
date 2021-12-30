@@ -128,6 +128,7 @@ expand_periods_ <- function(periods, start_var, end_var,
 #' Guess the epoch length (in seconds) from the timestamp column
 #' @param epochs A data frame with at least one column,
 #' \code{timestamp}, which contains POSIXct objects.
+#' @param TSname character. Name of the timestamp column
 #' @examples
 #' data("gtxplus1day")
 #'
@@ -138,12 +139,12 @@ expand_periods_ <- function(periods, start_var, end_var,
 #'   collapse_epochs(60) %>%
 #'   get_epoch_length()
 #' @export
-get_epoch_length <- function(epochs) {
-  assert_that(exists("timestamp", epochs),
-    msg = "Tibble has no timestamp column."
+get_epoch_length <- function(epochs, TSname = "timestamp") {
+  assert_that(exists(TSname, epochs),
+    msg = paste0("Tibble has no ", TSname, " column.")
   )
 
-  epoch_lens <- time_length(epochs$timestamp - lag(epochs$timestamp))
+  epoch_lens <- time_length(epochs[[TSname]] - lag(epochs[[TSname]]))
   # The first length is `NA` by construction
   epoch_len <- epoch_lens[2]
 
@@ -165,4 +166,36 @@ mode <- function(x) {
 rleid <- function(x) {
   x <- rle(x)$lengths
   rep(seq_along(x), times = x)
+}
+
+# Calculate log(counts) while avoiding zero-count values
+log_adjust <- function(x, adjustment = c("actilife", "pmax")) {
+
+  adjustment <- match.arg(adjustment)
+
+  switch(
+    adjustment,
+    "actilife" = x + 1,
+    "pmax" = pmax(x, 1),
+    NULL
+  ) %>%
+  log(.)
+
+}
+
+# Convert an AGread dataframe to formatted tibble
+AG_convert <- function (agdb, TSname = "timestamp", countname = "axis1") {
+
+  if (exists("count", agdb)) warning(
+    "Behavior is unknown when \"count\" is a column in the data frame.",
+    " A variable of the same name is\n  appended by actigraph.sleepr,",
+    " which may cause undesirable behavior. Ideally you should change\n ",
+    " that variable name, or at least check over the output to make sure",
+    " it looks correct.", call. = FALSE
+  )
+
+  tibble::as_tibble(agdb) %>%
+  structure(., epochlength = get_epoch_length(., TSname)) %T>%
+  {stopifnot(exists(TSname, .), exists(countname, .))}
+
 }

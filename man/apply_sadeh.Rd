@@ -4,12 +4,18 @@
 \alias{apply_sadeh}
 \title{Apply the Sadeh algorithm}
 \usage{
-apply_sadeh(agdb)
+apply_sadeh(agdb, TSname = "timestamp", countname = "axis1", ...)
 }
 \arguments{
 \item{agdb}{A \code{tibble} (\code{tbl}) of activity data
 (at least) an \code{epochlength} attribute. The epoch length must
 be 60 seconds.}
+
+\item{TSname}{character. Name of the timestamp column}
+
+\item{countname}{character. Name of the vertical axis column}
+
+\item{...}{arguments passed to \code{\link[internal applicator]{apply_sadeh_}}}
 }
 \value{
 A \code{tibble} (\code{tbl}) of activity data. A new column

@@ -4,11 +4,13 @@
 \alias{has_missing_epochs}
 \title{Checks whether there are gaps in the time series}
 \usage{
-has_missing_epochs(agdb)
+has_missing_epochs(agdb, TSname = "timestamp")
 }
 \arguments{
 \item{agdb}{A \code{tibble} (\code{tbl}) of activity data (at least)
 an \code{epochlength} attribute.}
+
+\item{TSname}{character. Name of the timestamp column}
 }
 \value{
 True or false.
