@@ -15,7 +15,7 @@ be 60 seconds.}
 
 \item{countname}{character. Name of the vertical axis column}
 
-\item{...}{arguments passed to \code{\link[internal applicator]{apply_sadeh_}}}
+\item{...}{arguments passed to \code{\link[=apply_sadeh_]{internal applicator}}}
 }
 \value{
 A \code{tibble} (\code{tbl}) of activity data. A new column

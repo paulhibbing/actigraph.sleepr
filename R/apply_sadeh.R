@@ -8,7 +8,7 @@
 #' be 60 seconds.
 #' @inheritParams get_epoch_length
 #' @param countname character. Name of the vertical axis column
-#' @param ... arguments passed to \code{\link[internal applicator]{apply_sadeh_}}
+#' @param ... arguments passed to \code{\link[=apply_sadeh_]{internal applicator}}
 #' @return A \code{tibble} (\code{tbl}) of activity data. A new column
 #'  \code{sleep} indicates whether each 60s epoch is scored as asleep
 #'  (S) or awake (W).
