@@ -88,46 +88,47 @@ apply_sadeh <- function(agdb, TSname = "timestamp", countname = "axis1", ...) {
 #'   one of \code{"actilife"} (adds 1 count to all values), \code{"pmax"} (adds
 #'   1 to all zero-count values and leaves others unchanged), or \code{"none"} (
 #'   does not add anything)
+#' @param pad value with which to pad \code{countname} for rolling operations
+#' @param output_varname character. Name to assign for output variable
 #'
 #' @keywords internal
 apply_sadeh_ <- function(
   data, countname = "axis1", sleep_threshold = -4,
-  adjustment = c("actilife", "pmax", "none")
+  adjustment = c("actilife", "pmax", "none"), pad = 0,
+  output_varname = "sleep"
 ) {
 
   adjustment <- match.arg(adjustment)
   half_window <- 5
 
+  pad_x <- function(x, left = half_window, right = left) {
+    rep(pad, left) %>%
+    c(x) %>%
+    c(rep(pad, right))
+  }
+
   # From the Sadeh paper:
   # Mean-W-5-min is the average number of activity counts during the scored
   # epoch and the window of five epochs preceding and following it.
   roll_avg <- function(x) {
-    padding <- rep(0, half_window)
-    roll_mean(
-      c(padding, x, padding),
-      n = 2 * half_window + 1, align = "center", partial = FALSE
-    )
+    pad_x(x, half_window) %>%
+    roll_mean(n = 2 * half_window + 1, partial = FALSE)
   }
   # From the Sadeh paper:
   # SD-last 6 min is the standard deviation of the activity counts during
   # the scored epoch and the five epochs preceding it.
   roll_std <- function(x) {
-    padding <- rep(0, half_window)
-    roll_sd(c(padding, x),
-      n = half_window + 1, align = "right", partial = FALSE
-    )
+    pad_x(x, half_window, 0) %>%
+    roll_sd(n = half_window + 1, partial = FALSE)
   }
   # From the Sadeh paper:
   # NAT is the number of epochs with activity level equal to or higher than
   # 50 but lower than 100 activity counts in a window of 11 minutes that
   # includes the scored epoch and the five epochs preceding and following it.
   roll_nats <- function(x) {
-    padding <- rep(0, half_window)
-    y <- if_else(x >= 50 & x < 100, 1, 0)
-    roll_sum(
-      c(padding, y, padding),
-      n = 2 * half_window + 1, align = "center", partial = FALSE
-    )
+    if_else(x >= 50 & x < 100, 1, 0) %>%
+    pad_x(half_window) %>%
+    roll_sum(n = 2 * half_window + 1, partial = FALSE)
   }
 
   data %>%
@@ -140,6 +141,8 @@ apply_sadeh_ <- function(
           - 0.056 * roll_std(.data$count)
           - 0.703 * log_adjust(.data$count, adjustment)
       ),
-      sleep = if_else(.data$sleep > sleep_threshold, "S", "W")
+      !!as.name(output_varname) := if_else(
+        .data$sleep > sleep_threshold, "S", "W"
+      )
     )
 }

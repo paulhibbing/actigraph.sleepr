@@ -8,7 +8,9 @@ apply_sadeh_(
   data,
   countname = "axis1",
   sleep_threshold = -4,
-  adjustment = c("actilife", "pmax", "none")
+  adjustment = c("actilife", "pmax", "none"),
+  pad = 0,
+  output_varname = "sleep"
 )
 }
 \arguments{
@@ -23,6 +25,10 @@ probability will be classified as sleep}
 one of \code{"actilife"} (adds 1 count to all values), \code{"pmax"} (adds
 1 to all zero-count values and leaves others unchanged), or \code{"none"} (
 does not add anything)}
+
+\item{pad}{value with which to pad \code{countname} for rolling operations}
+
+\item{output_varname}{character. Name to assign for output variable}
 }
 \description{
 Internal function for calculating Sadeh algorithm sleep variables

@@ -20,4 +20,4 @@
 #' @importFrom lubridate duration ymd_hms time_length is.POSIXct floor_date
 NULL
 
-globalVariables(c(".", "timestamp", "where"))
+globalVariables(c(".", "timestamp", "where", ":=", "!!"))
