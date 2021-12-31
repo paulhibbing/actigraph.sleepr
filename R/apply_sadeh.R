@@ -19,7 +19,8 @@
 #' described in the ActiGraph user manual.
 #'
 #' The Sadeh algorithm uses the y-axis (axis 1) counts; epoch counts
-#' over 300 are set to 300. The sleep index (SI) is defined as
+#' over 300 are set to 300, unless a value is passed for \code{count_ceiling}.
+#' The sleep index (SI) is defined as
 #'
 #' \code{
 #' SI = 7.601 - (0.065 * AVG) - (1.08 * NATS) - (0.056 * SD) - (0.703 * LG)
@@ -95,7 +96,7 @@ apply_sadeh <- function(agdb, TSname = "timestamp", countname = "axis1", ...) {
 apply_sadeh_ <- function(
   data, countname = "axis1", sleep_threshold = -4,
   adjustment = c("actilife", "pmax", "none"), pad = 0,
-  output_varname = "sleep"
+  output_varname = "sleep", count_ceiling = 300
 ) {
 
   adjustment <- match.arg(adjustment)
@@ -133,7 +134,7 @@ apply_sadeh_ <- function(
 
   data %>%
     mutate(
-      count = pmin(.data[[countname]], 300),
+      count = pmin(.data[[countname]], count_ceiling),
       sleep = (
         7.601
         - 0.065 * roll_avg(.data$count)

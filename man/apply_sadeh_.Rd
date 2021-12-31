@@ -10,7 +10,8 @@ apply_sadeh_(
   sleep_threshold = -4,
   adjustment = c("actilife", "pmax", "none"),
   pad = 0,
-  output_varname = "sleep"
+  output_varname = "sleep",
+  count_ceiling = 300
 )
 }
 \arguments{

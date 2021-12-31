@@ -34,7 +34,8 @@ and five future epochs. This function implements the algorithm as
 described in the ActiGraph user manual.
 
 The Sadeh algorithm uses the y-axis (axis 1) counts; epoch counts
-over 300 are set to 300. The sleep index (SI) is defined as
+over 300 are set to 300, unless a value is passed for \code{count_ceiling}.
+The sleep index (SI) is defined as
 
 \code{
 SI = 7.601 - (0.065 * AVG) - (1.08 * NATS) - (0.056 * SD) - (0.703 * LG)
